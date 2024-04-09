@@ -1,0 +1,7 @@
+out
+.vs
+.vscode
+build
+install
+*build*
+CMakePresets.json
