@@ -151,9 +151,25 @@ int main(int argc, char* argv[])
 	
 	loader l(root_dir2);
 	l.load_all_packages();
-	auto pags = l.get_all_packages();
-	auto asteroid_1_70_92 = l.get_package("asteroid", "1.70.92");
+	//auto pags = l.get_all_packages();
+	//auto pags2 = l.get_all_packages();
+	//auto pags3 = l.get_all_packages();
+	//auto pags4 = l.get_all_packages();
+	//auto pags5 = l.get_all_packages();
+	//auto asteroid_1_70_92 = l.get_package("asteroid", "1.70.92");
 
+	//auto pkgs = l.get_all_packages();
+	//auto pkgs2 = l.get_all_packages();
+	//auto pkgs3 = l.get_all_packages();
+	//auto pkgs4 = l.get_all_packages();
+	//auto pkgs5 = l.get_all_packages();
+
+	//std::string name = (*pkgs[10])._name;
+	//auto version = pkgs[10]->get_version_string();
+	//auto deps = pkgs[10]->get_all_dependencies();
+	auto size = sizeof(package);
+	std::cout << "Size of package: " << size << std::endl;
+	std::cin >> answer;
 	return 0;
 
 }

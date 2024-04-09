@@ -31,8 +31,6 @@ void loader::set_package_root(const fs::path& filepath)
 		std::cerr << "Couldn't set package root. Invalid filepath provided: " << filepath << std::endl;
 		return;
 	}
-	
-
 	_root_dir = filepath;
 }
 
@@ -49,12 +47,20 @@ void loader::set_package_root(const std::string& filepath)
 
 package* loader::get_package(const std::string& name, const std::string& version)
 {
-	return &_package_map.find(get_qualified_name(name, version))->second;
+	if (_package_map.count(name) <= 0) {
+		return nullptr;
+	}
+	return _package_map.find(name)->second.find(version)->second.get();
 }
 
 package* loader::get_package(const std::string& versioned_name)
 {
-	return &_package_map.find(versioned_name)->second;
+	if (versioned_name.find('-') == std::string::npos) {
+		return nullptr;
+	}
+	auto name = versioned_name.substr(0, versioned_name.find('-'));
+	auto version = versioned_name.substr(versioned_name.find('-') + 1);
+	return _package_map.find(name)->second.find(version)->second.get();
 }
 
 fs::path loader::get_package_root()
@@ -62,12 +68,16 @@ fs::path loader::get_package_root()
 	return fs::path();
 }
 
-std::vector<package> loader::get_all_packages()
+std::vector<package*> loader::get_all_packages()
 {
-	//for (auto p : _package_map) {
-	//	std::cout << p.first << std::endl;
-	//}
-	return std::vector<package>();
+	std::vector<package*> all_packages;
+
+	for (auto& p : _package_map) {
+		for (auto& v : p.second) {
+			all_packages.push_back(v.second.get());
+		}
+	}
+	return all_packages;
 }
 
 void loader::load_all_packages()
@@ -125,13 +135,13 @@ void loader::_load_package_from_dir(const fs::path& filepath)
 	}
 	
 	std::string name, version;
-	std::unordered_map<std::string, std::string> dependencies;
+	umap<std::string, std::string> dependencies;
 	{
 		auto lock = std::scoped_lock<std::mutex>(_config_yaml_mutex);
 		YAML::Node config = YAML::LoadFile(config_path.string());
 		name = config["name"].as<std::string>();
 		version = config["version"].as<std::string>();
-		dependencies = config["depends"].as<std::unordered_map<std::string, std::string>>();
+		dependencies = config["depends"].as<umap<std::string, std::string>>();
 	}
 
 #ifdef logging
@@ -146,12 +156,16 @@ void loader::_load_package_from_dir(const fs::path& filepath)
 	}
 #endif
 	auto versioned_package_name = get_qualified_name(name, version);
-	if (_package_map.count(versioned_package_name) >= 1) return;
-
 	{
-		std::lock_guard<std::mutex> lock(_package_list_mutex);
-		_package_map.insert_or_assign(versioned_package_name,
-			std::move(package(name, version, filepath, std::move(dependencies))));
+		std::scoped_lock<std::mutex> lock(_package_list_mutex);
+		// if the package doesn't exist in the map, add it
+		if (_package_map.count(name) <= 0) {
+			_package_map.insert_or_assign(name, umap<std::string, std::shared_ptr<package>>());
+		}
+		// add the package version to the map
+		if (_package_map[name].count(version) <= 0) {
+			_package_map[name].insert_or_assign(
+				version, std::make_shared<package>(package(name, version, filepath, std::move(dependencies))));
+		}
 	}
-	
 }

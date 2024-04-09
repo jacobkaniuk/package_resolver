@@ -41,8 +41,8 @@ public:
 	bool operator < (const package& other);
 	bool operator >= (const package& other);
 	bool operator <= (const package& other);
-private:
 	std::string _name;
+private:
 	std::string _version;
 	std::filesystem::path _path;
 	std::vector<package> _dependency_packages;

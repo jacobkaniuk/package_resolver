@@ -19,6 +19,7 @@ package::package(
 
 package::package(const package& other)
 {
+	_dependencies = std::move(other._dependencies);
 	_name = other._name;
 	_version = other._version;
 	_path = other._path;
