@@ -34,7 +34,7 @@ message(STATUS "YAML-CPP libraries: ${YAML_CPP_LIBRARIES}")
 message(STATUS TBB ${TBB_INCLUDE_DIR})
 
 # Add source to this project's executable.
-add_executable (package_resolver "main.cpp" "package.cpp" "loader.cpp" "version_parser.cpp" "threadpool.h" )
+add_executable (package_resolver "main.cpp" "package.cpp" "loader.cpp" "parser.cpp" "threadpool.h"  "solver.h" "solver.cpp")
 set_target_properties(package_resolver PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(package_resolver PRIVATE ${CMAKE_SOURCE_DIR}/include ${YAML_CPP_INCLUDE_DIR} ${TBB_INCLUDE_DIR})
 target_link_libraries(package_resolver PRIVATE yaml-cpp::yaml-cpp TBB::tbb)

@@ -4,7 +4,7 @@
 
 #include "loader.h"
 #include "package.h"
-#include "version_parser.h"
+#include "parser.h"
 #include "threadpool.h"
 
 
@@ -115,26 +115,39 @@ int main(int argc, char* argv[])
 	std::unordered_map<std::string, package*> package_map;
 	package_map[p1.get_name() + "-" + p1.get_version_string()] = &p1;
 	package_map[p2.get_name() + "-" + p2.get_version_string()] = &p2;
+	*/
 	
 	std::string v1 = "1.4.4";
 	std::string v2 = "^1.4.5";
 	std::string v3 = "2.11.4";
 	std::string v4 = "~2.11.4";
 
-	auto a1 = has_major_restriction(v1);
-	auto a2 = has_major_restriction(v2);
-	auto a3 = has_minor_restriction(v3);
-	auto a4 = has_minor_restriction(v4);
+	auto a1 = parser::version::has_major_restriction(v1);
+	auto a2 = parser::version::has_major_restriction(v2);
+	auto a3 = parser::version::has_minor_restriction(v3);
+	auto a4 = parser::version::has_minor_restriction(v4);
 
 	std::string v5 = "1.2.44";
 	std::string v6 = "^^1.2.44";
 	std::string v7 = "^1.2.44 ||";
 	std::string v8 = "^1.2.44 ||  1.4.5";
 
-	auto b1 = is_valid_version_string(v5);
-	auto b2 = is_valid_version_string(v6);
-	auto b3 = is_valid_version_string(v7);
-	auto b4 = is_valid_version_string(v8);*/
+	auto b1 = parser::version::is_valid_version_expression(v5);
+	auto b2 = parser::version::is_valid_version_expression(v6);
+	auto b3 = parser::version::is_valid_version_expression(v7);
+	auto b4 = parser::version::is_valid_version_expression(v8);
+
+	std::string v9 = "~1.2.44";
+	std::string v10 = "~~1.2.44";
+	std::string v11 = "~^1.2.44 ||";
+	std::string v12 = "~^1.2.44 ||  1.4.5";
+
+	auto b11 = parser::version::is_valid_version_expression(v5);
+	auto b12 = parser::version::is_valid_version_expression(v6);
+	auto b13 = parser::version::is_valid_version_expression(v7);
+	auto b14 = parser::version::is_valid_version_expression(v8);
+
+	auto tokens = parser::version::split_version_expression(v8);
 
 
 //#ifdef windows
@@ -169,7 +182,30 @@ int main(int argc, char* argv[])
 	//auto deps = pkgs[10]->get_all_dependencies();
 	auto size = sizeof(package);
 	std::cout << "Size of package: " << size << std::endl;
-	std::cin >> answer;
+
+	auto c1 = parser::version::eval_version_from_version_expression_token("1.2.3");
+	auto c2 = parser::version::eval_version_from_version_expression_token("~1.3");
+	auto c3 = parser::version::eval_version_from_version_expression_token("^1.2.3");
+	auto c4 = parser::version::eval_version_from_version_expression_token("^1");
+
+	auto d1 = parser::version::split_version("12.244.325");
+	auto d2 = parser::version::split_version("11.22");
+	auto d3 = parser::version::split_version("~2");
+
+	auto a = l.get_all_package_versions("asteroid");
+	auto x1 = l._is_valid_version_range_expression("|| 2.3.4");
+	auto x2 = l._is_valid_version_range_expression("2.3.4");
+	auto x3 = l._is_valid_version_range_expression("2.3.4 || ");
+	auto x4 = l._is_valid_version_range_expression("1.22 || 2.3.4");
+	auto x5 = l._is_valid_version_range_expression("^1.22 && !2.3.4");
+
+	std::cout << x1 << x2 << x3 << x4 << x5;
+
+	auto r = l.get_version_range("asteroid", "^1 <= 10");
+	auto r2 = l.get_version_range("asteroid", "1 <= 10");
+	auto r3 = l.get_version_range("asteroid", "1 <= 6.10");
+
+
 	return 0;
 
 }

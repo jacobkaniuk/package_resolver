@@ -14,16 +14,22 @@ package::package(
 	_version = version;
 	_path = path;
 	_dependencies = dependencies;
+	_ver_major = -1;
+	_ver_minor = -1;
+	_ver_patch = -1;
+
 	_extract_version();
 }
 
 package::package(const package& other)
 {
-	_dependencies = std::move(other._dependencies);
+	_dependencies = other._dependencies;
 	_name = other._name;
 	_version = other._version;
 	_path = other._path;
-	_extract_version();
+	_ver_major = other._ver_major;
+	_ver_minor = other._ver_minor;
+	_ver_patch = other._ver_patch;
 }
 
 package::package(package&& other) noexcept { 
@@ -31,7 +37,9 @@ package::package(package&& other) noexcept {
 	_name = other._name;
 	_version = other._version;
 	_path = other._path;
-	_extract_version();
+	_ver_major = other._ver_major;
+	_ver_minor = other._ver_minor;
+	_ver_patch = other._ver_patch;
 }
 
 package& package::operator=(package&& other) noexcept {
@@ -39,6 +47,9 @@ package& package::operator=(package&& other) noexcept {
 	_name = other._name;
 	_version = other._version;
 	_path = other._path;
+	_ver_major = other._ver_major;
+	_ver_minor = other._ver_minor;
+	_ver_patch = other._ver_patch;
 	return *this;
 }
 
@@ -46,17 +57,17 @@ package::~package()
 {
 }
 
-inline int package::get_major()
+int package::get_major()
 {
 	return _ver_major;
 }
 
-inline int package::get_minor()
+int package::get_minor()
 {
 	return _ver_minor;
 }
 
-inline int package::get_patch()
+int package::get_patch()
 {
 	return _ver_patch;
 }
@@ -99,9 +110,9 @@ std::vector<package> package::get_all_dependencies()
 inline void package::_extract_version()
 {
 	std::istringstream versionStream(_version);
-	char dot; // Used to skip the dot character
+	char version_separator;
 
-	if (!(versionStream >> _ver_major >> dot >> _ver_minor >> dot >> _ver_patch)) {
+	if (!(versionStream >> _ver_major >> version_separator >> _ver_minor >> version_separator >> _ver_patch)) {
 		std::cerr << "Error parsing version string: " << _version << std::endl;
 	}
 }
